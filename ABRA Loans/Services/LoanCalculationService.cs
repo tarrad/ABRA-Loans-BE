@@ -29,58 +29,63 @@ namespace ABRA_Loans.Services
             try
             {
                 client = _clientRepository.GetClientById(loanRequest.ClientId);
-            }
-            catch (Exception ex)
-            {
-                errors.Add( "הפרופיל המבוקש להלוואה לא נמצא");
-                //we can implement logging here to catch the exception and the stacktrace
-            }
+                if (client == null)
+                {
+                    response.ErrorMsg = "הפרופיל המבוקש להלוואה לא נמצא";
+                    return response;
+                }
+                else if (loanRequest.LoanPeriod < 12)
+                {
 
-            if (loanRequest.LoanPeriod < 12)
-            {
-                errors.Add("לא ניתן לבקש הלוואה לפרק זמן שקטן מ12 חודשים");
-            }
+                    response.ErrorMsg = "לא ניתן לבקש הלוואה לפרק זמן שקטן מ12 חודשים";
+                    return response;
+                }
 
-            if (loanRequest.LoanAmount <= 0)
-            {
-                errors.Add("לא ניתן לבקש הלוואה שערכה קטן או שווה ל0");
-            }
+                else if (loanRequest.LoanAmount <= 0)
+                {
+                    response.ErrorMsg = "לא ניתן לבקש הלוואה שערכה קטן או שווה ל0";
+                    return response;
+                }
 
-            
 
-            if (errors.Count == 0)
-            {
+
+
                 LoanStrategyType strategyType = LoanHelper.DetermineStrategyType(client.Age);
 
                 // Get the appropriate strategy using the factory to calcualte the right interest based on the age
                 ILoanStrategy strategy = _loanHandler.GetStrategy(strategyType);
 
-                
+
                 double baseLoanInterest = strategy.CalculateInterest(_primeInterest, loanRequest.LoanAmount);
 
                 response.RequestedLoanAmount = loanRequest.LoanAmount;
                 // Calculate the base loan amount
-                response.TotalLoanAmountToPayBasicInterest = LoanHelper.CalculateAnnualInterest(loanRequest.LoanAmount, loanRequest.LoanPeriod,  baseLoanInterest);
+                response.TotalLoanAmountToPayBasicInterest = LoanHelper.CalculateAnnualInterest(loanRequest.LoanAmount, loanRequest.LoanPeriod, baseLoanInterest);
 
 
                 // Add extra interest for months over 12
                 response.TotalLoanAmountToPayExtraInterest = LoanHelper.CalculateExtraInterest(loanRequest.LoanAmount, loanRequest.LoanPeriod, _extraInterestAboveTwelveMonths);
 
 
-                response.TotalLoanAmountToPay = loanRequest.LoanAmount +  response.TotalLoanAmountToPayBasicInterest + response.TotalLoanAmountToPayExtraInterest;
+                response.TotalLoanAmountToPay = loanRequest.LoanAmount + response.TotalLoanAmountToPayBasicInterest + response.TotalLoanAmountToPayExtraInterest;
 
-                
+
                 response.IsSuccess = true;
+
             }
-            else
+            catch (Exception ex)
             {
-                response.ErrorMsg =  string.Join(", ", errors);
+                response.ErrorMsg = "שגיאה בחישוב ההלואה";
+                return response;
+                //we can implement logging here to catch the exception and the stacktrace
             }
+
+
             return response;
 
 
         }
 
-        
+
     }
 }
