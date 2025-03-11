@@ -1,0 +1,6 @@
+@ABRA_Loans_HostAddress = http://localhost:5231
+
+GET {{ABRA_Loans_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
