@@ -10,9 +10,9 @@
             }
             else if(loanAmount <= 30000)
             {
-                return 1 + primeInterest;
+                return 1.5 + primeInterest;
             }
-            return 1;
+            return 1 + primeInterest;
         }
     }
 }
