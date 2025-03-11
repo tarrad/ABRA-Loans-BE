@@ -22,7 +22,7 @@ namespace ABRA_Loans.Services
 
         public LoanResponse CalculateTotalAmountForLoan(LoanRequest loanRequest)
         {
-
+            List<string> errors = new List<string>();
             LoanResponse response = new LoanResponse();
             // Fetch client data (In a real app, this would come from a database, here we will use in memory and mock repository)
             Client client = null;
@@ -32,23 +32,23 @@ namespace ABRA_Loans.Services
             }
             catch (Exception ex)
             {
-                response.ErrorMsg = "הפרופיל המבוקש להלוואה לא נמצא";
+                errors.Add( "הפרופיל המבוקש להלוואה לא נמצא");
                 //we can implement logging here to catch the exception and the stacktrace
             }
 
             if (loanRequest.LoanPeriod < 12)
             {
-                response.ErrorMsg = "לא ניתן לבקש הלוואה לפרק זמן שקטן מ12 חודשים";
+                errors.Add("לא ניתן לבקש הלוואה לפרק זמן שקטן מ12 חודשים");
             }
 
             if (loanRequest.LoanAmount <= 0)
             {
-                response.ErrorMsg = "לא ניתן לבקש הלוואה שערכה קטן או שווה ל0";
+                errors.Add("לא ניתן לבקש הלוואה שערכה קטן או שווה ל0");
             }
 
             
 
-            if (response.ErrorMsg == null)
+            if (errors.Count == 0)
             {
                 LoanStrategyType strategyType = LoanHelper.DetermineStrategyType(client.Age);
 
@@ -72,9 +72,11 @@ namespace ABRA_Loans.Services
                 
                 response.IsSuccess = true;
             }
-            
+            else
+            {
+                response.ErrorMsg =  string.Join(", ", errors);
+            }
             return response;
-            // Determine the loan strategy type based on client age and loan amount
 
 
         }
