@@ -14,21 +14,30 @@ namespace ABRA_Loans.Handlers
 
         public ILoanStrategy GetStrategy(LoanStrategyType strategyType)
         {
-            // Use DI to resolve the correct strategy based on the enum value
-            switch (strategyType)
+            string strategyName = Enum.GetName(typeof(LoanStrategyType), strategyType);
+
+            if (string.IsNullOrEmpty(strategyName))
             {
-                case LoanStrategyType.Under20:
-                    return _serviceProvider.GetRequiredService<LoanUnder20Engine>();
+                throw new InvalidOperationException($"Invalid strategy type: {strategyType}");
 
-                case LoanStrategyType.Between20And35:
-                    return _serviceProvider.GetRequiredService<LoanBetween20And35Engine>();
-
-                case LoanStrategyType.Above35:
-                    return _serviceProvider.GetRequiredService<LoanAbove35Engine>();
-
-                default:
-                    throw new InvalidOperationException($"Strategy not found for {strategyType}");
             }
+
+            // Construct the engine class name based on the enum value
+            string engineClassName = $"{strategyName}Engine";
+
+            // Use reflection to find the type of the engine class
+            var engineType = typeof(LoanHandler)
+                .Assembly.GetTypes()
+                .FirstOrDefault(t => t.Name == engineClassName);
+
+            if (engineType == null)
+            {
+                throw new InvalidOperationException($"Engine not found for strategy: {strategyName}");
+            }
+
+            // Use DI to resolve the engine type
+            return (ILoanStrategy)_serviceProvider.GetRequiredService(engineType); new InvalidOperationException($"Strategy not found for {strategyType}");
         }
     }
 }
+

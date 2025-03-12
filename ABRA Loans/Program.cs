@@ -8,9 +8,9 @@ var configuration = builder.Configuration;
 
 
 builder.Services.AddSingleton<IConfiguration>(configuration);
-builder.Services.AddSingleton<LoanUnder20Engine>();
-builder.Services.AddSingleton<LoanBetween20And35Engine>();
-builder.Services.AddSingleton<LoanAbove35Engine>();
+builder.Services.AddSingleton<Under20Engine>();
+builder.Services.AddSingleton<Between20And35Engine>();
+builder.Services.AddSingleton<Above35Engine>();
 builder.Services.AddSingleton<IClientRepository, ClientRepositoryMock>();
 builder.Services.AddSingleton<LoanHandler>();
 builder.Services.AddSingleton<LoanCalculationService>();

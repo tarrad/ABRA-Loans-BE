@@ -1,6 +1,6 @@
 ﻿namespace ABRA_Loans.Engines
 {
-    public class LoanAbove35Engine : ILoanStrategy
+    public class Above35Engine : ILoanStrategy
     {
         public double CalculateInterest(double primeInterest, double loanAmount)
         {
