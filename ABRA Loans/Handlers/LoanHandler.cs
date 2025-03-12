@@ -36,7 +36,7 @@ namespace ABRA_Loans.Handlers
             }
 
             // Use DI to resolve the engine type
-            return (ILoanStrategy)_serviceProvider.GetRequiredService(engineType); new InvalidOperationException($"Strategy not found for {strategyType}");
+            return (ILoanStrategy)_serviceProvider.GetRequiredService(engineType);
         }
     }
 }
